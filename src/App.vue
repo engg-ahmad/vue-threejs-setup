@@ -3,9 +3,7 @@
 </script>
 
 <template>
-  <div id="app">
-    <Canvas />
-  </div>
+  <Canvas />
 </template>
 
 <style scoped>
