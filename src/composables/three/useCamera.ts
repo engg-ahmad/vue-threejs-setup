@@ -18,10 +18,10 @@ export const useCamera = (containerRef: Ref) => {
     const height = containerRef.value.clientHeight
     aspect.value = width / height
 
-    const newCamera = new PerspectiveCamera(fov.value, aspect.value, near.value, far.value);
+    const newCamera = markRaw(new PerspectiveCamera(fov.value, aspect.value, near.value, far.value));
     // every object is initially created at ( 0, 0, 0 )
     // move the camera back so we can view the scene
-    newCamera.position.set(position.value.x, position.value.y, 5); // Set initial position
+    newCamera.position.set(position.value.x, position.value.y, position.value.z); // Set initial position
     camera.value = newCamera;
     
     console.log('Camera created with FOV:', fov.value, 'and near/far:', near.value, '/', far.value);

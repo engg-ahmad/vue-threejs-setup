@@ -1,15 +1,15 @@
-import { ref, markRaw, type Ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import { Scene, Camera, WebGLRenderer } from 'three';
-
 
 export const useRenderer = (containerRef: Ref) => {
   const renderer = ref<WebGLRenderer | null>(null);
 
   // Create a WebGL renderer and append it to the container
   const createRenderer = () => {
-    if (renderer.value) return;
+    if (!containerRef.value) return null
 
     const { clientWidth, clientHeight } = containerRef.value
+
     const newRenderer = new WebGLRenderer();
     newRenderer.setSize(clientWidth, clientHeight);
     newRenderer.setPixelRatio(window.devicePixelRatio);
@@ -24,14 +24,14 @@ export const useRenderer = (containerRef: Ref) => {
 
    // Render a scene
   const render = (scene: Scene, camera: Camera) => {
-    if (!renderer.value || !scene || !camera) return
+    if (!renderer.value || !scene || !camera) return null
     
     renderer.value.render(scene, camera)
   }
 
   return {
-    createRenderer,
     renderer,
+    createRenderer,
     render
   };
 } 

@@ -1,5 +1,5 @@
 import { Scene, Color } from 'three';
-import { ref, markRaw } from 'vue';
+import { ref } from 'vue';
 import { COLORS } from '@/config/constants';
 
 export const useScene = () => {

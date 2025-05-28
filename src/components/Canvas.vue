@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onMounted, ref, watch } from 'vue'
+  import { ref, watch } from 'vue'
   import { useThreeScene } from '@/composables/three/useThreeScene';
   import { useObjectManager } from '@/composables/object/useObjectManager';
 
@@ -8,7 +8,7 @@
   // Initialize the Three.js scene
   const threeScene = useThreeScene(container);
   // Initialize object manager
-  const objectManager = useObjectManager(threeScene.scene)
+  const objectManager = useObjectManager()
 
   // Watch for scene changes - using deep equality to prevent unnecessary updates
   watch(() => threeScene.scene.value, (newScene, oldScene) => {
@@ -20,12 +20,21 @@
     }
   }, { deep: true })
 
-  onMounted(() => {
-  })
+  const handleClick = () => {
+    const cube = objectManager.createObject('cube')
+    if (threeScene?.scene?.value && threeScene?.camera?.value) {
+      threeScene.scene.value.add(cube)
+      threeScene.render(threeScene.scene.value, threeScene.camera.value)
+    }
+  }
+
 </script>
 
 <template>
-  <div id="scene-container" ref="container"></div>
+  <div id="scene-container" ref="container">
+    <button @click.prevent="handleClick">Click me!</button>
+  </div>
+
 </template>
 
 <style scoped>

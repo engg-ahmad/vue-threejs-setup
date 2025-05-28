@@ -3,7 +3,6 @@ import { onMounted, nextTick, type Ref } from "vue";
 import { useScene } from '@/composables/three/useScene';
 import { useCamera } from '@/composables/three/useCamera';
 import { useRenderer } from '@/composables/three/useRenderer';
-import { useObjectManager } from '@/composables/object/useObjectManager';
 
 export const useThreeScene = (containerRef: Ref) => {
   // Use sceneManager to manage your Three.js scenes
@@ -12,8 +11,6 @@ export const useThreeScene = (containerRef: Ref) => {
   const cameraManager = useCamera(containerRef);
   // Use rendererManager to manage your Three.js renderers
   const rendererManager = useRenderer(containerRef);
-
-  const objectManager = useObjectManager(sceneManager.scene);
 
   const init = async () => {
     try {
@@ -40,22 +37,12 @@ export const useThreeScene = (containerRef: Ref) => {
     // Initialize the Three.js scene here
     console.log("Three.js scene initialized");
     // You can add your Three.js setup code here
-    
-    // Render scene
-    if (rendererManager.renderer.value && 
-        sceneManager.scene.value && 
-        cameraManager.camera.value) {
-      objectManager.addObject('cube'); // Example of adding a cube object
-      rendererManager.render(
-        sceneManager.scene.value, 
-        cameraManager.camera.value
-      )
-    }
   });
 
   return {
     scene: sceneManager.scene,
     camera: cameraManager.camera,
-    renderer: rendererManager.renderer
+    renderer: rendererManager.renderer,
+    render: rendererManager.render
   }
 }

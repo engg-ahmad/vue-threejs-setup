@@ -1,74 +1,38 @@
-import { ref, markRaw, type Ref } from 'vue';
-import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three';
+import { markRaw } from 'vue';
+import { BufferGeometry, BufferAttribute, Mesh, MeshBasicMaterial, BoxGeometry } from 'three';
 
-
-export const useObjectManager = (scene: Ref) => {
-  const objects = ref<Mesh[]>([]); // Store created objects
-  const objectCounter = ref(0); // Unique ID counter for objects
-
+export const useObjectManager = () => {
   // Create a 3D cube
   const createObject = (type: String) => {
-    let geometery
+    let geometry
     switch (type) {
       case 'cube':
-        geometery = markRaw(new BoxGeometry(1, 1, 1));
+        geometry = new BoxGeometry(2, 2, 2)
+        break;
+      case 'triangle':
+        const vertices = new Float32Array( [
+          0, 1, 0,   // Vertex A (top)
+          -1, -1, 0, // Vertex B (bottom left)
+          1, -1, 0   // Vertex C (bottom right)
+        ]);
+        geometry = new BufferGeometry();
+
+        // itemSize = 3 because there are 3 values (components) per vertex
+        geometry.setAttribute( 'position', new BufferAttribute( vertices, 3 ) );
+
         break;
       // Add more cases for different object types if needed
       default:
         throw new Error(`Unknown object type: ${type}`);
     }
 
-    const material = markRaw(new MeshBasicMaterial());
-    const mesh = markRaw(new Mesh(geometery, material));
-    mesh.position.set(0, 0, 0)
-
-     // Add unique ID and type
-    objectCounter.value++
-    mesh.userData = {
-      id: objectCounter.value,
-      type: type,
-      createdAt: Date.now()
-    }
+    const material = new MeshBasicMaterial();
+    const mesh = markRaw(new Mesh(geometry, material));
 
     return mesh
   }
 
-   // Track an object
-  const trackObject = (object: Mesh) => {
-    // Use spread to create new arrays for reactivity
-    objects.value = [...objects.value, object]
-    
-  }
-
-  // Add object to scene
-  const addObject = (type: String) => {
-    console.log('addObject called with scene:', scene.value)
-    if (!scene.value) {
-      console.error('Scene is not available')
-      return null
-    }
-    
-    try {
-      // Create the object
-      const object = createObject(type)
-      
-      // Add to scene and track
-      scene.value.add(object)
-      trackObject(object)
-      
-      // Log creation for debugging
-      console.log(`Created new ${type} (ID: ${object.userData.id}) at scene center`)
-      
-      return object
-    } catch (error) {
-      console.error('Error creating object:', error)
-      return null
-    }
-  }
-
   return {
-    objects,
-    addObject,
     createObject
   }
 }
