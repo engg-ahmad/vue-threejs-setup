@@ -1,6 +1,6 @@
 # vue-threejs-app
 
-This template should help get you started developing with Vue 3 in Vite.
+This boilerplate facilitates the configuration of three.js within a Vue environment.
 
 ## Recommended IDE Setup
 
