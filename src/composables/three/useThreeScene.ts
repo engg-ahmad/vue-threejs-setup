@@ -3,6 +3,7 @@ import { onMounted, nextTick, type Ref } from "vue";
 import { useScene } from '@/composables/three/useScene';
 import { useCamera } from '@/composables/three/useCamera';
 import { useRenderer } from '@/composables/three/useRenderer';
+import { useObjectManager } from "@/composables/object/useObjectManager";
 
 export const useThreeScene = (containerRef: Ref) => {
   // Use sceneManager to manage your Three.js scenes
@@ -20,13 +21,41 @@ export const useThreeScene = (containerRef: Ref) => {
         return;
       }
       // Set up the Three.js scene
-      sceneManager.createScene()
+      sceneManager.createScene();
       cameraManager.createCamera();
       rendererManager.createRenderer();
+
+      const objectManager = useObjectManager();
+
+      // Add lights to the scene
+      const light = sceneManager.createLights();
+      const cube = objectManager.createCube();
+      sceneManager.scene.value?.add(cube, light);
+
+      // Add window resize handler
+      window.addEventListener('resize', onWindowResize)
     }
     catch (error) {
       console.error("Error initializing Three.js scene:", error);
     }
+  }
+
+  // Handle window resize
+  const onWindowResize = () => {
+    if (!containerRef.value) return
+    
+    const width = containerRef.value.clientWidth
+    const height = containerRef.value.clientHeight
+    
+    cameraManager.updateAspect(width, height)
+    rendererManager.resize(width, height)
+
+    if (!sceneManager.scene.value || !cameraManager.camera.value || !rendererManager.renderer.value) {
+      console.error("Failed to update Three.js scene, camera, or renderer on resize");
+      return;
+    }
+    // Re-render the scene after resizing
+    rendererManager.render(sceneManager.scene.value, cameraManager.camera.value);
   }
 
   onMounted(async () => {
@@ -34,15 +63,22 @@ export const useThreeScene = (containerRef: Ref) => {
     if (containerRef.value) {
       containerRef.value.focus()
     }
+
+    // You can add your Three.js setup code here
+    if (!sceneManager.scene.value || !cameraManager.camera.value || !rendererManager.renderer.value) {
+      console.error("Failed to initialize Three.js scene, camera, or renderer");
+      return;
+    }
+
     // Initialize the Three.js scene here
     console.log("Three.js scene initialized");
-    // You can add your Three.js setup code here
+
+    rendererManager.render(sceneManager.scene.value, cameraManager.camera.value);
   });
 
   return {
     scene: sceneManager.scene,
     camera: cameraManager.camera,
-    renderer: rendererManager.renderer,
-    render: rendererManager.render
+    renderer: rendererManager.renderer
   }
 }

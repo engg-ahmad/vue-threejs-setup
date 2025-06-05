@@ -10,7 +10,7 @@ export const useRenderer = (containerRef: Ref) => {
 
     const { clientWidth, clientHeight } = containerRef.value
 
-    const newRenderer = new WebGLRenderer();
+    const newRenderer = new WebGLRenderer({ antialias: true });
     newRenderer.setSize(clientWidth, clientHeight);
     newRenderer.setPixelRatio(window.devicePixelRatio);
 
@@ -29,9 +29,17 @@ export const useRenderer = (containerRef: Ref) => {
     renderer.value.render(scene, camera)
   }
 
+  const resize = (width: number, height: number) => {
+    if (!renderer.value) return
+
+    renderer.value.setSize(width, height);
+    renderer.value.setPixelRatio(window.devicePixelRatio);
+  }
+
   return {
     renderer,
     createRenderer,
-    render
+    render,
+    resize
   };
 } 

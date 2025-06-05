@@ -29,8 +29,18 @@ export const useCamera = (containerRef: Ref) => {
     return newCamera
   }
 
+  // Update camera aspect ratio
+  const updateAspect = (width: number, height: number) => {
+    if (!camera.value) return
+
+    aspect.value = width / height
+    camera.value.aspect = aspect.value
+    camera.value.updateProjectionMatrix()
+  }
+
   return {
     camera,
+    updateAspect,
     createCamera
   }
 }
