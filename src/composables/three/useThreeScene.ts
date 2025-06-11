@@ -4,6 +4,7 @@ import { useScene } from '@/composables/three/useScene';
 import { useCamera } from '@/composables/three/useCamera';
 import { useRenderer } from '@/composables/three/useRenderer';
 import { useObjectManager } from "@/composables/object/useObjectManager";
+import { useAnimation } from '@/composables/animation/useAnimation';
 
 export const useThreeScene = (containerRef: Ref) => {
   // Use sceneManager to manage your Three.js scenes
@@ -12,6 +13,22 @@ export const useThreeScene = (containerRef: Ref) => {
   const cameraManager = useCamera(containerRef);
   // Use rendererManager to manage your Three.js renderers
   const rendererManager = useRenderer(containerRef);
+
+  // Render function for animation
+  const renderFrame = () => {
+    // Render scene
+    if (rendererManager.renderer.value &&
+        sceneManager.scene.value &&
+        cameraManager.camera.value) {
+      rendererManager.render(
+        sceneManager.scene.value,
+        cameraManager.camera.value
+      )
+    }
+  }
+
+    // Animation manager
+  const animationManager = useAnimation(renderFrame)
 
   const init = async () => {
     try {
@@ -30,6 +47,7 @@ export const useThreeScene = (containerRef: Ref) => {
       // Add lights to the scene
       const light = sceneManager.createLights();
       const cube = objectManager.createCube();
+      animationManager.addUpdateable(cube);
       sceneManager.scene.value?.add(cube, light);
 
       // Add window resize handler
@@ -49,13 +67,6 @@ export const useThreeScene = (containerRef: Ref) => {
     
     cameraManager.updateAspect(width, height)
     rendererManager.resize(width, height)
-
-    if (!sceneManager.scene.value || !cameraManager.camera.value || !rendererManager.renderer.value) {
-      console.error("Failed to update Three.js scene, camera, or renderer on resize");
-      return;
-    }
-    // Re-render the scene after resizing
-    rendererManager.render(sceneManager.scene.value, cameraManager.camera.value);
   }
 
   onMounted(async () => {
@@ -73,7 +84,7 @@ export const useThreeScene = (containerRef: Ref) => {
     // Initialize the Three.js scene here
     console.log("Three.js scene initialized");
 
-    rendererManager.render(sceneManager.scene.value, cameraManager.camera.value);
+    animationManager.start()
   });
 
   return {
