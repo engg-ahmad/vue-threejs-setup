@@ -1,5 +1,8 @@
+import { Clock } from 'three';
 import type { Object3D } from 'three';
 import { reactive, ref } from 'vue';
+
+const clock = new Clock(); // Create a clock to manage time
 
 export const useAnimation = (renderCallback: Function) => {
   const updateables = ref<Object3D[]>([]); // Use ref to make it reactive
@@ -59,9 +62,11 @@ export const useAnimation = (renderCallback: Function) => {
   const tick = () => {
     if (updateables.value.length === 0) return;
 
+    const delta = clock.getDelta(); // Get the time since the last frame
+    console.log(`Delta time: ${delta.toFixed(4)} seconds`);
     for (const object of updateables.value) {
       if (typeof (object as any).tick === 'function') {
-        (object as any).tick();
+        (object as any).tick(delta);
       }
     }
   }

@@ -1,10 +1,11 @@
+import { MathUtils } from 'three';
 import { markRaw } from 'vue';
 import { BufferGeometry, BufferAttribute, Mesh, MeshStandardMaterial, BoxGeometry } from 'three';
 
 // Extend Mesh to allow a 'tick' method for animation
 declare module 'three' {
   interface Mesh {
-    tick?: () => void;
+    tick?: (delta?: number) => void;
   }
 }
 
@@ -41,14 +42,14 @@ export const useObjectManager = () => {
 
   const createCube = () => {
     const cube = createObject('cube');
-    cube.rotation.set(-0.5, -0.1, 0.8); // Set the rotation of the cube
 
+    const radiansPerSecond = MathUtils.degToRad(30);
     // this method will be called once per frame
-    cube.tick = () => {
+    cube.tick = (delta: any) => {
       // increase the cube's rotation each frame
-      cube.rotation.z += 0.01;
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+      cube.rotation.z += radiansPerSecond * delta;
+      cube.rotation.x += radiansPerSecond * delta;
+      cube.rotation.y += radiansPerSecond * delta;
     }
 
     // Log creation for debugging
